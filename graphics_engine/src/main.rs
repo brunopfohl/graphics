@@ -1,30 +1,41 @@
 mod math;
 mod graphics;
+mod renderer;
 
-use math::{Vec3, Mat4, Vec2};
-use graphics::{Sprite, Transform2D};
+use glutin::event::{Event, WindowEvent};
+use glutin::event_loop::ControlFlow;
+use math::Vec2;
+use graphics::Sprite;
+use renderer::Renderer;
 
 fn main() {
-    // Test vector operations
-    let v1 = Vec3::new(1.0, 0.0, 0.0);
-    let v2 = Vec3::new(0.0, 1.0, 0.0);
-    let cross = v1.cross(&v2);
+    let (renderer, context, event_loop) = Renderer::new();
+    // Make the sprite smaller so it's visible in normalized coordinates
+    let mut sprite = Sprite::new(0.2, 0.2);
 
-    println!("Cross product of v1 x v2: {:?}", cross);
+    event_loop.run(move |event, _, control_flow| {
+        *control_flow = ControlFlow::Poll;
 
-    // Test matrix operations
-    let m = Mat4::identity();
-    println!("Identity matrix: {:?}", m);
+        match event {
+            Event::WindowEvent { event: WindowEvent::CloseRequested, .. } => {
+                *control_flow = ControlFlow::Exit
+            },
+            Event::RedrawRequested(_) => {
+                unsafe {
+                    gl::ClearColor(0.2, 0.3, 0.3, 1.0);
+                    gl::Clear(gl::COLOR_BUFFER_BIT);
+                }
 
-    // Create a sprite
-    let mut sprite = Sprite::new(100.0, 100.0);
-    
-    // Apply some transformations
-    sprite.transform.translate(Vec2::new(50.0, 50.0));
-    sprite.transform.rotate(45.0);
-    sprite.transform.set_scale(Vec2::new(1.5, 1.5));
-    
-    // Get transformed vertices
-    let transformed = sprite.get_transformed_vertices();
-    println!("Transformed vertices: {:?}", transformed);
+                sprite.transform.rotate(1.0); // Use 2D rotation
+
+                renderer.draw_sprite(&sprite);
+
+                context.swap_buffers().unwrap();
+            },
+            Event::MainEventsCleared => {
+                context.window().request_redraw();
+            },
+            _ => ()
+        }
+    });
 }

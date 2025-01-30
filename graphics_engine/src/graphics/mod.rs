@@ -1,5 +1,4 @@
-pub mod transform2d;
-pub mod sprite;
+mod sprite;
+mod transform2d;
 
-pub use transform2d::Transform2D;
 pub use sprite::Sprite;

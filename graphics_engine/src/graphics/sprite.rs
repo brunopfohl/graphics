@@ -28,7 +28,8 @@ impl Sprite {
     }
 
     pub fn get_transformed_vertices(&self) -> Vec<Vec2> {
-        self.vertices.iter()
+        self.vertices
+            .iter()
             .map(|v| self.transform.transform_point(*v))
             .collect()
     }
